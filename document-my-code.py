@@ -42,7 +42,7 @@ def validateArgs(args):
 
 	ret = True;
 
-	supported_languages = ["C"];
+	supported_languages = ["C", "Python"];
 	usage_str = "Usage: python3 document-my-code.py -l [language] [input filename] [output filename]";
 
 	if len(args) != 5:
@@ -88,7 +88,13 @@ def getSettingsForLanguage(language):
 		settings['mid_block_comment']   = " * ";
 		settings['end_block_comment']   = "*/ ";
 		settings['regex_string']        = "((\\w)+[*]*\\s+(\\w)+(\\()((\\w)*[*]*(\\s)+(\\w)*(,)*)*(\\))({)*)";
-		
+	elif language == "Python":
+		settings['inline_comment']      = "# ";
+		settings['start_block_comment'] = "# ";
+		settings['mid_block_comment']   = "# ";
+		settings['end_block_comment']   = "# ";
+		settings['regex_string']        = "d{1}e{1}f{1}\\s+\\w+\\(\\w*\\):{1}";
+
 
 	return settings;
 
@@ -115,6 +121,21 @@ def parseFunctionStrings(results, language):
 			params = [x.lstrip() for x in params];
 
 			function['parameters'] = params;
+
+			function_info.append(function);
+	elif language == "Python":
+		for r in results:
+			function = {};
+			function['return_type'] = "";
+			
+			param_spl = r.split("(", 1);
+			param_spl2 = param_spl[1].split(")", 1);
+			param_str = param_spl2[0].split(",");
+			param_str = [x.lstrip() for x in param_str];
+			function['parameters'] = param_str;
+
+			name_str = param_spl[0].split(" ");
+			function['name'] = name_str[1];
 
 			function_info.append(function);
 	else:
